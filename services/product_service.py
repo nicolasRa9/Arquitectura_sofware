@@ -1,8 +1,8 @@
 
 from __future__ import annotations
 
-from core import Service
-from database import insert_producto
+from Arquitectura_sofware.core import Service
+from Arquitectura_sofware.database import insert_producto
 
 
 def register_product(data: str) -> str:

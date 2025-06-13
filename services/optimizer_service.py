@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from core import Service
+from Arquitectura_sofware.core import Service
 
 
 def suggest_location(data: str) -> str:

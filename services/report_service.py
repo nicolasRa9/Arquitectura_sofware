@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from core import Service
-from database import all_productos
+from Arquitectura_sofware.core import Service
+from Arquitectura_sofware.database import all_productos
 
 
 def generate_report(_data: str) -> str:

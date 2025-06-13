@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from core import Service
+from Arquitectura_sofware.core import Service
 
 
 def show_warehouse(_data: str) -> str:

@@ -1,8 +1,8 @@
 
 from __future__ import annotations
 
-from core import Service
-from database import insert_movimiento
+from Arquitectura_sofware.core import Service
+from Arquitectura_sofware.database import insert_movimiento
 
 
 def track_movement(data: str) -> str:
