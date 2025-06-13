@@ -1,73 +1,158 @@
 version: "3.9"
 
 services:
-  dispatcher:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        SERVICE: dispatcher.py
-    command: python dispatcher.py
+  # Bus SOA - Reemplaza el dispatcher personalizado
+  soabus:
+    image: jrgiadach/soabus:v1
+    container_name: soabus
     ports:
-      - "9100:9100"
-    volumes:
-      - dbdata:/app/database
+      - "9100:9100"  # Puerto principal del bus
+      - "8080:8080"  # Puerto adicional si es necesario
+    environment:
+      - BUS_HOST=0.0.0.0
+      - BUS_PORT=9100
+      - LOG_LEVEL=debug
+    networks:
+      - soa-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -an | grep :9100 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
+  # Servicio de gestión de productos (SV001)
   product_service:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         SERVICE: services/product_service.py
-    command: python services/product_service.py
-    depends_on:
-      - dispatcher
+    container_name: product_service
+    environment:
+      - BUS_HOST=soabus
+      - BUS_PORT=9100
+      - SERVICE_CODE=SV001
+      - SERVICE_NAME=product_manager
+    networks:
+      - soa-network
     volumes:
       - dbdata:/app/database
+    depends_on:
+      soabus:
+        condition: service_healthy
+    restart: unless-stopped
 
+  # Servicio optimizador de ubicaciones (SV002)
   optimizer_service:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         SERVICE: services/optimizer_service.py
-    command: python services/optimizer_service.py
+    container_name: optimizer_service
+    environment:
+      - BUS_HOST=soabus
+      - BUS_PORT=9100
+      - SERVICE_CODE=SV002
+      - SERVICE_NAME=location_optimizer
+    networks:
+      - soa-network
     depends_on:
-      - dispatcher
+      soabus:
+        condition: service_healthy
+    restart: unless-stopped
 
+  # Servicio de seguimiento de movimientos (SV003)
   movement_service:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         SERVICE: services/movement_service.py
-    command: python services/movement_service.py
-    depends_on:
-      - dispatcher
+    container_name: movement_service
+    environment:
+      - BUS_HOST=soabus
+      - BUS_PORT=9100
+      - SERVICE_CODE=SV003
+      - SERVICE_NAME=movement_tracker
+    networks:
+      - soa-network
     volumes:
       - dbdata:/app/database
+    depends_on:
+      soabus:
+        condition: service_healthy
+    restart: unless-stopped
 
+  # Servicio visualizador de almacén (SV004)
   visualizer_service:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         SERVICE: services/visualizer_service.py
-    command: python services/visualizer_service.py
+    container_name: visualizer_service
+    environment:
+      - BUS_HOST=soabus
+      - BUS_PORT=9100
+      - SERVICE_CODE=SV004
+      - SERVICE_NAME=warehouse_visualizer
+    networks:
+      - soa-network
     depends_on:
-      - dispatcher
+      soabus:
+        condition: service_healthy
+    restart: unless-stopped
 
+  # Servicio generador de reportes (SV005)
   report_service:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         SERVICE: services/report_service.py
-    command: python services/report_service.py
-    depends_on:
-      - dispatcher
+    container_name: report_service
+    environment:
+      - BUS_HOST=soabus
+      - BUS_PORT=9100
+      - SERVICE_CODE=SV005
+      - SERVICE_NAME=alert_report_generator
+    networks:
+      - soa-network
     volumes:
       - dbdata:/app/database
+    depends_on:
+      soabus:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Cliente de prueba
+  test_client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: client/test_client.py
+    container_name: test_client
+    environment:
+      - BUS_HOST=soabus
+      - BUS_PORT=9100
+    networks:
+      - soa-network
+    depends_on:
+      soabus:
+        condition: service_healthy
+    restart: "no"
+    profiles:
+      - testing
+
+networks:
+  soa-network:
+    driver: bridge
+    name: soa-network
 
 volumes:
   dbdata:
+    driver: local
