@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  dispatcher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: dispatcher.py
+    command: python dispatcher.py
+    ports:
+      - "9100:9100"
+    volumes:
+      - dbdata:/app/database
+
+  product_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: services/product_service.py
+    command: python services/product_service.py
+    depends_on:
+      - dispatcher
+    volumes:
+      - dbdata:/app/database
+
+  optimizer_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: services/optimizer_service.py
+    command: python services/optimizer_service.py
+    depends_on:
+      - dispatcher
+
+  movement_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: services/movement_service.py
+    command: python services/movement_service.py
+    depends_on:
+      - dispatcher
+    volumes:
+      - dbdata:/app/database
+
+  visualizer_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: services/visualizer_service.py
+    command: python services/visualizer_service.py
+    depends_on:
+      - dispatcher
+
+  report_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: services/report_service.py
+    command: python services/report_service.py
+    depends_on:
+      - dispatcher
+    volumes:
+      - dbdata:/app/database
+
+volumes:
+  dbdata:

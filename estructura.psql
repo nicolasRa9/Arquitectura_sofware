@@ -1,0 +1,28 @@
+wms_soa/
+│
+├── common/
+│   ├── __init__.py
+│   ├── services_mapping.py         
+│   └── soa_formatter.py             
+│
+├── core/
+│   ├── __init__.py
+│   └── service.py                   
+├── services/
+│   ├── __init__.py
+│   ├── product_service.py           
+│   ├── optimizer_service.py        
+│   ├── movement_service.py         
+│   ├── visualizer_service.py        
+│   └── report_service.py            
+│
+├── client/
+│   ├── __init__.py
+│   └── test_client.py               
+│
+├── data/
+│   └── productos.db                
+│
+├── README.md                       
+├── requirements.txt                
+└── main.py                         
