@@ -1,0 +1,62 @@
+version: "3.9"
+services:
+  bus_service:
+    build: ./bus_service
+    ports:
+      - "9000:9000"
+  product_service:
+    build: ./services/product_service
+    environment:
+      - BUS_HOST=bus_service
+      - BUS_PORT=9000
+      - SERVICE_NAME=product
+    depends_on:
+      - bus_service
+  location_service:
+    build: ./services/location_service
+    environment:
+      - BUS_HOST=bus_service
+      - BUS_PORT=9000
+      - SERVICE_NAME=location
+    depends_on:
+      - bus_service
+  optimization_service:
+    build: ./services/optimization_service
+    environment:
+      - BUS_HOST=bus_service
+      - BUS_PORT=9000
+      - SERVICE_NAME=optimiz
+    depends_on:
+      - bus_service
+  movement_service:
+    build: ./services/movement_service
+    environment:
+      - BUS_HOST=bus_service
+      - BUS_PORT=9000
+      - SERVICE_NAME=movement
+    depends_on:
+      - bus_service
+  visualization_service:
+    build: ./services/visualization_service
+    environment:
+      - BUS_HOST=bus_service
+      - BUS_PORT=9000
+      - SERVICE_NAME=visualiz
+    depends_on:
+      - bus_service
+  alert_report_service:
+    build: ./services/alert_report_service
+    environment:
+      - BUS_HOST=bus_service
+      - BUS_PORT=9000
+      - SERVICE_NAME=alertrep
+    depends_on:
+      - bus_service
+  order_service:
+    build: ./services/order_service
+    environment:
+      - BUS_HOST=bus_service
+      - BUS_PORT=9000
+      - SERVICE_NAME=order
+    depends_on:
+      - bus_service
