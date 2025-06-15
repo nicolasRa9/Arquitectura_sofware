@@ -10,6 +10,11 @@ services:
       - BUS_HOST=bus_service
       - BUS_PORT=9000
       - SERVICE_NAME=product
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=arqui_db
+      - DB_USER=admin
+      - DB_PASSWORD=admin123
     depends_on:
       - bus_service
   location_service:
@@ -60,3 +65,16 @@ services:
       - SERVICE_NAME=order
     depends_on:
       - bus_service
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=arqui_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
