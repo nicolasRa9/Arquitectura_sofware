@@ -11,7 +11,11 @@ CREATE TABLE ubicacion (
     id_ubicacion SERIAL PRIMARY KEY,
     codigo VARCHAR(50) NOT NULL UNIQUE,
     capacidad INTEGER NOT NULL CHECK (capacidad > 0),
-    disponible BOOLEAN NOT NULL DEFAULT TRUE
+    disponible BOOLEAN NOT NULL DEFAULT TRUE,
+    id_estante INTEGER NOT NULL REFERENCES estante(id_estante) ON DELETE CASCADE ON UPDATE CASCADE,
+    altura DECIMAL(10,2) NOT NULL,
+    ancho DECIMAL(10,2) NOT NULL,
+    profundidad DECIMAL(10,2) NOT NULL
 );
 
 CREATE TABLE almacenamiento (
@@ -42,4 +46,15 @@ CREATE TABLE pedido_producto (
     id_pedido INTEGER NOT NULL REFERENCES pedido(id_pedido) ON DELETE CASCADE ON UPDATE CASCADE,
     id_producto INTEGER NOT NULL REFERENCES producto(id_producto) ON DELETE CASCADE ON UPDATE CASCADE,
     cantidad INTEGER NOT NULL CHECK (cantidad > 0)
+);
+
+CREATE TABLE estante (
+    id_estante SERIAL PRIMARY KEY,
+    codigo VARCHAR(50) NOT NULL UNIQUE,
+    zona_id INTEGER NOT NULL REFERENCES zonas(zona_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE zonas (
+    id_zona SERIAL PRIMARY KEY,
+    tipo VARCHAR(50) NOT NULL
 );
