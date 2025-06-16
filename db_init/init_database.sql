@@ -11,7 +11,11 @@ CREATE TABLE ubicacion (
     id_ubicacion SERIAL PRIMARY KEY,
     codigo VARCHAR(50) NOT NULL UNIQUE,
     capacidad INTEGER NOT NULL CHECK (capacidad > 0),
-    disponible BOOLEAN NOT NULL DEFAULT TRUE
+    disponible BOOLEAN NOT NULL DEFAULT TRUE,
+    id_estante INTEGER NOT NULL REFERENCES estante(id_estante) ON DELETE CASCADE ON UPDATE CASCADE,
+    altura DECIMAL(10,2) NOT NULL,
+    ancho DECIMAL(10,2) NOT NULL,
+    profundidad DECIMAL(10,2) NOT NULL
 );
 
 CREATE TABLE almacenamiento (
@@ -53,4 +57,8 @@ CREATE TABLE estante (
 CREATE TABLE zonas (
     id_zona SERIAL PRIMARY KEY,
     tipo VARCHAR(50) NOT NULL
+<<<<<<< HEAD
 );
+=======
+);
+>>>>>>> 86b18937c014e6e1690bdc55f224471a488df6de
