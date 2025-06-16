@@ -2,8 +2,9 @@ import os, socket, threading, time, random, string
 
 BUS_HOST = os.getenv("BUS_HOST", "bus_service")
 BUS_PORT = int(os.getenv("BUS_PORT", "9000"))
-SERVICE_NAME = os.getenv("SERVICE_NAME", "product")
+SERVICE_NAME = os.getenv("SERVICE_NAME", "produ")  # 5 caracteres para identificar este servicio
 MSG_SIZE = 10
+
 
 def recv_loop(sock):
     while True:
@@ -25,6 +26,10 @@ def main():
     time.sleep(2)  # wait for bus readiness
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((BUS_HOST, BUS_PORT))
+    # Envía el nombre del servicio al conectar
+    sock.sendall(SERVICE_NAME.encode())
+    print(f"[product_service] Registrado como '{SERVICE_NAME}' en el bus.")
+
     threading.Thread(target=recv_loop, args=(sock,), daemon=True).start()
     send_loop(sock)
 
