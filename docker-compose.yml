@@ -9,7 +9,7 @@ services:
     build: ./services/product_service
     environment:
       - BUS_HOST=bus_service
-      - BUS_PORT=9000
+      - BUS_PORT=5000
       - SERVICE_NAME=product
       - DB_HOST=db
       - DB_PORT=5432
@@ -22,15 +22,15 @@ services:
     build: ./services/location_service
     environment:
       - BUS_HOST=bus_service
-      - BUS_PORT=9000
-      - SERVICE_NAME=location
+      - BUS_PORT=5000
+      - SERVICE_NAME=SEV02
     depends_on:
       - bus_service
   optimization_service:
     build: ./services/optimization_service
     environment:
       - BUS_HOST=bus_service
-      - BUS_PORT=9000
+      - BUS_PORT=5000
       - SERVICE_NAME=optimiz
     depends_on:
       - bus_service
@@ -38,7 +38,7 @@ services:
     build: ./services/movement_service
     environment:
       - BUS_HOST=bus_service
-      - BUS_PORT=9000
+      - BUS_PORT=5000
       - SERVICE_NAME=movement
     depends_on:
       - bus_service
@@ -46,7 +46,7 @@ services:
     build: ./services/visualization_service
     environment:
       - BUS_HOST=bus_service
-      - BUS_PORT=9000
+      - BUS_PORT=5000
       - SERVICE_NAME=visualiz
     depends_on:
       - bus_service
@@ -54,7 +54,7 @@ services:
     build: ./services/alert_report_service
     environment:
       - BUS_HOST=bus_service
-      - BUS_PORT=9000
+      - BUS_PORT=5000
       - SERVICE_NAME=alertrep
     depends_on:
       - bus_service
@@ -62,7 +62,7 @@ services:
     build: ./services/order_service
     environment:
       - BUS_HOST=bus_service
-      - BUS_PORT=9000
+      - BUS_PORT=5000
       - SERVICE_NAME=order
     depends_on:
       - bus_service
