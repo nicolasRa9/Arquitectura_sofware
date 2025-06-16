@@ -1,41 +1,22 @@
-import socket, threading
+import socket
 
-HOST = '0.0.0.0'
-PORT = 9000
-MSG_SIZE = 10  # fixed-size bus messages (10 bytes)
+def construir_transaccion(servicio, datos):
+    servicio = servicio.ljust(5)  # Asegura que tenga largo 5
+    contenido = servicio + datos
+    longitud = str(len(contenido)).zfill(5)
+    return longitud + contenido
 
-clients = []
-
-def handle_client(conn, addr):
+def enviar_transaccion(mensaje):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(('localhost', 5000))
     try:
-        while True:
-            data = conn.recv(MSG_SIZE)
-            if not data:
-                break
-            # Broadcast to all other clients
-            for c in clients:
-                if c is not conn:
-                    try:
-                        c.sendall(data)
-                    except Exception:
-                        pass
+        sock.sendall(mensaje.encode())
+        respuesta = sock.recv(1024).decode()
+        print("Respuesta del bus:", respuesta)
     finally:
-        conn.close()
-        if conn in clients:
-            clients.remove(conn)
-        print(f"Client {addr} disconnected.")
+        sock.close()
 
-def main():
-    print(f"Starting bus on {HOST}:{PORT} with frame size {MSG_SIZE} bytes.")
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((HOST, PORT))
-        s.listen()
-        while True:
-            conn, addr = s.accept()
-            clients.append(conn)
-            print(f"Client {addr} connected.")
-            threading.Thread(target=handle_client, args=(conn, addr), daemon=True).start()
-
-if __name__ == "__main__":
-    main()
+# Ejemplo de uso
+datos = "120 345"
+mensaje = construir_transaccion("sumar", datos)
+enviar_transaccion(mensaje)

@@ -1,9 +1,10 @@
 version: "3.9"
 services:
   bus_service:
-    build: ./bus_service
+    image: jrgiadach/soabus:v1
+    container_name: soabus
     ports:
-      - "9000:9000"
+      - "5000:5000"
   product_service:
     build: ./services/product_service
     environment:

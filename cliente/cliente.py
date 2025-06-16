@@ -2,7 +2,7 @@ import socket
 
 def main():
     host = 'localhost'  # Cambia esto si el bus está en otra máquina
-    port = 9000         # Puerto del bus
+    port = 5000         # Puerto del bus
     MSG_SIZE = 10
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
