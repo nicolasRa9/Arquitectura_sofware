@@ -57,8 +57,4 @@ CREATE TABLE estante (
 CREATE TABLE zonas (
     id_zona SERIAL PRIMARY KEY,
     tipo VARCHAR(50) NOT NULL
-<<<<<<< HEAD
 );
-=======
-);
->>>>>>> 86b18937c014e6e1690bdc55f224471a488df6de
