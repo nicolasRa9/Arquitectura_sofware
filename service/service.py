@@ -10,7 +10,7 @@ def procesar_datos(datos):
 
 def ejecutar_servicio(nombre_servicio, puerto):
     servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    servidor.bind(('localhost', puerto))
+    servidor.bind(('bus', puerto))
     servidor.listen(5)
     print(f"Servicio '{nombre_servicio}' escuchando en puerto {puerto}...")
 
@@ -25,7 +25,7 @@ def ejecutar_servicio(nombre_servicio, puerto):
             longitud = int(data[:5])
             servicio = data[5:10]
             datos = data[10:]
-            if servicio == "sumar":
+            if servicio == "sum01":
                 print(f"Recibido servicio: {servicio}, datos: {datos}")
                 estado, respuesta = procesar_datos(datos)
                 contenido = f"{servicio}{estado}{respuesta}"
@@ -35,6 +35,6 @@ def ejecutar_servicio(nombre_servicio, puerto):
                 conexion.sendall(mensaje_respuesta.encode())
 
 
-# Ejemplo de uso
+#Ejemplo de uso
 if __name__ == "__main__":
-    ejecutar_servicio("sumar", 5000)  # O cualquier puerto donde se conecte el bus
+    ejecutar_servicio("sum01", 5000)  # O cualquier puerto donde se conecte el bus

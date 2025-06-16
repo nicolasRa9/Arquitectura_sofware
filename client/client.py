@@ -1,4 +1,4 @@
-import socket
+import socket, time
 
 def construir_transaccion(servicio, datos):
     servicio = servicio.ljust(5)  # Asegura que tenga largo 5
@@ -8,7 +8,7 @@ def construir_transaccion(servicio, datos):
 
 def enviar_transaccion(mensaje):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('localhost', 5000))
+    sock.connect(('bus', 5000))
     try:
         sock.sendall(mensaje.encode())
         respuesta = sock.recv(1024).decode()
@@ -16,7 +16,9 @@ def enviar_transaccion(mensaje):
     finally:
         sock.close()
 
+time.sleep(10)
+
 # Ejemplo de uso
 datos = "120 345"
-mensaje = construir_transaccion("sumar", datos)
+mensaje = construir_transaccion("sum01", datos)
 enviar_transaccion(mensaje)

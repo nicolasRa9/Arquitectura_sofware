@@ -6,4 +6,9 @@ services:
     container_name: soabus
     ports:
       - "5000:5000"
-    restart: always
+  service:
+    build: ./service
+    container_name: service
+  client:
+    build: ./client
+    container_name: client
