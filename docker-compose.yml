@@ -1,0 +1,76 @@
+version: '3.9'
+services:
+  esb:
+    build:
+      context: .
+      dockerfile: esb/Dockerfile
+    ports:
+      - '5001:5001'
+    networks: [net]
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wms
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/0_init.sql
+    networks: [net]
+  db_manager:
+    build:
+      context: .
+      dockerfile: db_manager/Dockerfile
+    depends_on: [db, esb]
+    environment:
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: wms
+    networks: [net]
+  product_service:
+    build:
+      context: .
+      dockerfile: services/product_service/Dockerfile
+    depends_on: [db_manager, esb]
+    networks: [net]
+  location_service:
+    build:
+      context: .
+      dockerfile: services/location_service/Dockerfile
+    depends_on: [db_manager, esb]
+    networks: [net]
+  movement_service:
+    build:
+      context: .
+      dockerfile: services/movement_service/Dockerfile
+    depends_on: [db_manager, esb]
+    networks: [net]
+  optimization_service:
+    build:
+      context: .
+      dockerfile: services/optimization_service/Dockerfile
+    depends_on: [db_manager, esb]
+    networks: [net]
+  visualization_service:
+    build:
+      context: .
+      dockerfile: services/visualization_service/Dockerfile
+    depends_on: [db_manager, esb]
+    networks: [net]
+  alert_report_service:
+    build:
+      context: .
+      dockerfile: services/alert_report_service/Dockerfile
+    depends_on: [db_manager, esb]
+    networks: [net]
+  order_service:
+    build:
+      context: .
+      dockerfile: services/order_service/Dockerfile
+    depends_on: [db_manager, esb]
+    networks: [net]
+volumes:
+  db_data:
+networks:
+  net:
