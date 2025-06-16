@@ -23,7 +23,7 @@ def send_loop(sock):
         # Ejemplo de datos: random string de 10 caracteres
         datos = ''.join(random.choices(string.ascii_uppercase, k=10))
         mensaje = construir_transaccion(SERVICE_NAME, datos)
-        sock.sendall(mensaje.encode())
+        #sock.sendall(mensaje.encode())
         print(f"[{SERVICE_NAME}] -> {mensaje}")
         time.sleep(5)
 
