@@ -1,73 +1,36 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  dispatcher:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        SERVICE: dispatcher.py
-    command: python dispatcher.py
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: wms_db
+    environment:
+      POSTGRES_DB: wms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "9100:9100"
+      - "5432:5432"
     volumes:
-      - dbdata:/app/database
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - wms_network
 
-  product_service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        SERVICE: services/product_service.py
-    command: python services/product_service.py
+  # Bus de servicios (ESB)
+  bus:
+    image: jrgiadach/soabus:v1
+    container_name: soabus
+    ports:
+      - "5000:5000"
+    networks:
+      - wms_network
     depends_on:
-      - dispatcher
-    volumes:
-      - dbdata:/app/database
-
-  optimizer_service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        SERVICE: services/optimizer_service.py
-    command: python services/optimizer_service.py
-    depends_on:
-      - dispatcher
-
-  movement_service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        SERVICE: services/movement_service.py
-    command: python services/movement_service.py
-    depends_on:
-      - dispatcher
-    volumes:
-      - dbdata:/app/database
-
-  visualizer_service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        SERVICE: services/visualizer_service.py
-    command: python services/visualizer_service.py
-    depends_on:
-      - dispatcher
-
-  report_service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        SERVICE: services/report_service.py
-    command: python services/report_service.py
-    depends_on:
-      - dispatcher
-    volumes:
-      - dbdata:/app/database
+      - db
 
 volumes:
-  dbdata:
+  postgres_data:
+
+networks:
+  wms_network:
+    driver: bridge
