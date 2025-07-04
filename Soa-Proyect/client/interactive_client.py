@@ -1,5 +1,13 @@
 import socket
 
+SERVICE_CODES = {
+    "1": "PROD1",
+    "2": "OPTI1",
+    "3": "MOVE1",
+    "4": "VISU1",
+    "5": "ALERT"
+}
+
 def send_message(service_code, payload):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     bus_address = ('localhost', 5000)
@@ -24,21 +32,9 @@ def main():
         print("5. Alertas y reportes")
         print("0. Salir")
         op = input("Selecciona una opción: ")
-        if op == "1":
-            payload = input("Datos del producto: ")
-            send_message("product_serv", payload)
-        elif op == "2":
-            payload = input("Datos para optimización: ")
-            send_message("storage_opt", payload)
-        elif op == "3":
-            payload = input("Datos de movimiento: ")
-            send_message("move_ctrl", payload)
-        elif op == "4":
-            payload = input("Parámetros de visualización: ")
-            send_message("visual_serv", payload)
-        elif op == "5":
-            payload = input("Parámetros de alerta/reporte: ")
-            send_message("alert_serv", payload)
+        if op in SERVICE_CODES:
+            payload = input("Datos para el servicio: ")
+            send_message(SERVICE_CODES[op], payload)
         elif op == "0":
             break
         else:
