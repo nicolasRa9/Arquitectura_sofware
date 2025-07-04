@@ -49,7 +49,6 @@ CREATE TABLE estantes (
 -- Tabla de zonas
 CREATE TABLE zonas (
     id SERIAL PRIMARY KEY,
-    codigo VARCHAR(50) UNIQUE,
     tipo VARCHAR(50)
 );
 

@@ -1,5 +1,9 @@
+# servicio_alerta.py
 import socket
 import psycopg2
+import base64
+import matplotlib.pyplot as plt
+from io import BytesIO
 
 SERVICE_CODE = b'ALERT'
 
@@ -20,7 +24,6 @@ def generar_alertas():
     try:
         conn = get_connection()
         cur = conn.cursor()
-        # Ubicaciones llenas o casi llenas
         cur.execute("""
             SELECT u.id, u.codigo, u.capacidad, COUNT(a.id)
             FROM ubicaciones u
@@ -30,8 +33,8 @@ def generar_alertas():
         rows = cur.fetchall()
         alertas = []
         for row in rows:
-            capacidad_usada = row[3]  # cantidad de productos
-            if capacidad_usada >= 1:  # aquí puedes ajustar el criterio real
+            capacidad_usada = row[3]
+            if capacidad_usada >= 1:
                 alertas.append(f"Ubicación {row[1]} está llena o casi llena")
 
         cur.close()
@@ -53,17 +56,32 @@ def generar_reporte():
             JOIN movimientos m ON p.id = m.producto_id
             GROUP BY p.nombre
             ORDER BY COUNT(m.id) DESC
-            LIMIT 3
+            LIMIT 5
         """)
         productos_top = cur.fetchall()
-
         cur.close()
         conn.close()
+
+        nombres = [p[0] for p in productos_top]
+        movimientos = [p[1] for p in productos_top]
+
+        plt.figure(figsize=(8, 4))
+        plt.bar(nombres, movimientos)
+        plt.title("Top productos por movimientos")
+        plt.xlabel("Producto")
+        plt.ylabel("Cantidad de movimientos")
+        plt.tight_layout()
+
+        buffer = BytesIO()
+        plt.savefig(buffer, format='png')
+        buffer.seek(0)
+        imagen_base64 = base64.b64encode(buffer.read()).decode()
 
         reporte = f"Total movimientos: {total_movs}\nTop productos:\n"
         for prod in productos_top:
             reporte += f"- {prod[0]}: {prod[1]} movimientos\n"
-        return reporte.strip().encode()
+
+        return json.dumps({"reporte": reporte.strip(), "grafico": imagen_base64}).encode()
     except Exception as e:
         return f'Error: {str(e)}'.encode()
 
