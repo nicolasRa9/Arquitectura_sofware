@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: wmsuser
+      POSTGRES_PASSWORD: wmspass
+      POSTGRES_DB: wmsdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # Bus de servicios (ESB)
+  bus:
+    image: jrgiadach/soabus:v1
+    container_name: soabus
+    ports:
+      - "5000:5000"
+    networks:
+      - wms_network
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+
+networks:
+  wms_network:
+    driver: bridge
