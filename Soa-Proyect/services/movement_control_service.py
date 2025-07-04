@@ -1,5 +1,7 @@
 import socket
 
+SERVICE_CODE = b'MOVE1'
+
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     bus_address = ('localhost', 5000)
@@ -7,7 +9,7 @@ def main():
     sock.connect(bus_address)
 
     try:
-        message = b'00018sinitmove_ctrl'
+        message = b'00010sinit' + SERVICE_CODE
         print('sending {!r}'.format(message))
         sock.sendall(message)
         sinit = 1
@@ -27,7 +29,7 @@ def main():
                 print('Received sinit answer')
             else:
                 print("Send answer")
-                message = b'00019move_ctrl_OK'
+                message = b'00013' + SERVICE_CODE + b'OK'
                 print('sending {!r}'.format(message))
                 sock.sendall(message)
     finally:
