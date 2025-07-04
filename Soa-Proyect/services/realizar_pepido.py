@@ -1,10 +1,10 @@
 import socket
 import psycopg2
+import json
 from datetime import datetime
 
-SERVICE_CODE = b'MOVE1'
+SERVICE_CODE = b'ORDE2'
 
-# Conexión a PostgreSQL
 def get_connection():
     return psycopg2.connect(
         dbname="wmsdb",
@@ -18,50 +18,50 @@ def build_message(service_code, payload):
     total_len = len(service_code) + len(payload)
     return str(total_len).zfill(5).encode() + service_code + payload
 
-def handle_post(payload):
-    try:
-        parts = payload.decode().split('|')
-        if len(parts) != 5:
-            return b'Error: Parametros incompletos'
+def crear_pedido(cur, cliente, productos):
+    cur.execute(
+        "INSERT INTO pedidos (nombre_cliente, estado) VALUES (%s, %s) RETURNING id",
+        (cliente, "pendiente")
+    )
+    pedido_id = cur.fetchone()[0]
 
-        id_producto = int(parts[1])
-        tipo = parts[2]
-        fecha = parts[3]
-        observaciones = parts[4]
+    for item in productos:
+        cur.execute(
+            "INSERT INTO pedido_producto (pedido_id, producto_id, cantidad) VALUES (%s, %s, %s)",
+            (pedido_id, item["producto_id"], item["cantidad"])
+        )
+    return pedido_id
+
+def handle_request(payload):
+    try:
+        data = json.loads(payload.decode())
+        cliente = data["cliente"]
+        productos = data["productos"]
 
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO movimiento (id_producto, tipo_movimiento, fecha, observaciones) VALUES (%s, %s, %s, %s)",
-            (id_producto, tipo, fecha, observaciones)
-        )
+        pedido_id = crear_pedido(cur, cliente, productos)
         conn.commit()
         cur.close()
         conn.close()
-        return b'Movimiento registrado correctamente'
-    except Exception as e:
-        return f'Error: {str(e)}'.encode()
 
-def handle_request(payload):
-    if payload.startswith(b'POST|'):
-        return handle_post(payload)
-    else:
-        return b'Comando no soportado'
+        return f"Pedido #{pedido_id} creado correctamente".encode()
+
+    except Exception as e:
+        return f"Error: {str(e)}".encode()
 
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     bus_address = ('localhost', 5000)
-    print('Conectando a {} puerto {}'.format(*bus_address))
+    print('Conectando al bus en {}:{}'.format(*bus_address))
     sock.connect(bus_address)
 
     try:
         message = build_message(b'sinit', SERVICE_CODE)
-        print('Registrando servicio: {!r}'.format(message))
         sock.sendall(message)
         sinit = True
 
         while True:
-            print("Esperando transacción...")
             length_bytes = sock.recv(5)
             if len(length_bytes) < 5:
                 break
@@ -74,20 +74,18 @@ def main():
                     break
                 data += more
 
-            print('Recibido:', data)
             if sinit:
                 sinit = False
-                print('Respuesta de sinit recibida')
+                print("Servicio ORDE1 registrado y esperando solicitudes...")
                 continue
 
             payload = data[len(SERVICE_CODE):]
             response = handle_request(payload)
             reply = build_message(SERVICE_CODE, response)
             sock.sendall(reply)
-            print("Respuesta enviada:", response)
 
     finally:
-        print('Cerrando socket')
+        print("Cerrando socket del servicio ORDE1")
         sock.close()
 
 if __name__ == "__main__":
